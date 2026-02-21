@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Live Group Location Tracker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<style>
+body { margin:0; font-family:Arial; background:#020617; color:white; }
+header { text-align:center; padding:12px; font-size:20px; background:black; }
+#map { height:90vh; }
+</style>
+</head>
+
+<body>
+
+<header>📍 Live Group Location Tracker</header>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+const map = L.map('map').setView([20.5937,78.9629], 5);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+let markers = {};
+
+const id = Math.random().toString(36).substr(2,9);
+
+navigator.geolocation.watchPosition(pos => {
+  const lat = pos.coords.latitude;
+  const lng = pos.coords.longitude;
+
+  localStorage.setItem(id, JSON.stringify({lat,lng}));
+
+  if(!markers[id]){
+    markers[id] = L.marker([lat,lng]).addTo(map).bindPopup("You");
+  } else {
+    markers[id].setLatLng([lat,lng]);
+  }
+});
+
+window.addEventListener("storage", e => {
+  const data = JSON.parse(e.newValue);
+  const key = e.key;
+
+  if(!markers[key]){
+    markers[key] = L.marker([data.lat,data.lng]).addTo(map).bindPopup("Friend");
+  } else {
+    markers[key].setLatLng([data.lat,data.lng]);
+  }
+});
+</script>
+
+</body>
+</html>
